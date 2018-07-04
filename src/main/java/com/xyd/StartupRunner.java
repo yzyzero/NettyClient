@@ -1,7 +1,9 @@
 package com.xyd;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,8 +20,11 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.druid.util.StringUtils;
 import com.xyd.dao.TerminalDao;
+import com.xyd.model.Category;
 import com.xyd.model.Terminal;
 import com.xyd.transfer.ClientService;
+import com.xyd.transfer.OperationManager;
+import com.xyd.transfer.manager.PlatformOptManager;
 
 //import cn.tass.yingjgb.YingJGBCALLDLL;
 //import org.apache.commons.codec.binary.Base64;
@@ -74,7 +79,10 @@ public class StartupRunner implements CommandLineRunner {
 		
 		logger.info("Startup Runner ......threadMaxCount="+threadMaxCount);
 		
-		List<Runnable> threadList = new ArrayList<Runnable>();
+		Map<Category, OperationManager<?>> handlers = new HashMap<Category, OperationManager<?>>();
+		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, new PlatformOptManager());
+		
+		List<Runnable> threadList = new ArrayList<Runnable>(threadMaxCount);
 		List<Terminal> tList = dao.findAll();
 		for(Terminal terminal: tList) {
 			String host = terminal.getHost() == null ? this.host : terminal.getHost();
@@ -83,17 +91,23 @@ public class StartupRunner implements CommandLineRunner {
 			String source = terminal.getSource();
 			String targets = terminal.getTargets();
 			boolean startup = terminal.getStartup();
-			logger.info("id={}, source={}, targets={}, startup={}", 
-					physicalAddress, source, targets, startup);
+//			logger.info("id={}, source={}, targets={}, startup={}", 
+//					physicalAddress, source, targets, startup);
 			ClientService thread = new ClientService(host, port, 
 					physicalAddress, source, targets, startup);
+			thread.setEventHandler(handlers);
+			//
 			threadList.add(thread);
 		}
-		ExecutorService executorService = Executors.newFixedThreadPool(threadMaxCount);
-		for(Runnable thread : threadList) {
-			executorService.execute(thread);
+//		ExecutorService executorService = Executors.newFixedThreadPool(threadMaxCount);
+//		for(Runnable thread : threadList) {
+//			executorService.execute(thread);
+//		}
+//		logger.info("Runner End.          threadMaxCount="+threadMaxCount);
+//		executorService.shutdown();
+		for(Runnable runner : threadList) {
+			new Thread(runner).start();
 		}
-		logger.info("Runner End.          threadMaxCount="+threadMaxCount);
-		executorService.shutdown();
+		
 	}
 }

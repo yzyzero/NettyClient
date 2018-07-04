@@ -1,11 +1,11 @@
 package com.xyd.transfer.ip.datapack;
 
 import org.apache.commons.codec.binary.Hex;
-
-import com.xyd.transfer.ip.PackEncodeException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.xyd.transfer.PackEncodeException;
+
 import cn.tass.yingjgb.YingJGBCALLDLL;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -64,8 +64,11 @@ public abstract class SendPack extends BasePack {
 				System.arraycopy(bSignature, 10, signature, 0, signature.length);
 				setSignature(signature);
 			} catch (Exception e) {
+				if(logger.isDebugEnabled()) {
+					logger.debug(e.toString());
+				}
 				//e.printStackTrace();
-				logger.info("签名错误");
+//				logger.info("签名错误");
 				//System.out.println("签名错误");
 			}
 			

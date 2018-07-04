@@ -1,5 +1,6 @@
 package com.xyd.transfer;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.xyd.model.Category;
 import com.xyd.model.Terminal;
 
 import io.netty.bootstrap.Bootstrap;
@@ -32,6 +34,8 @@ public class ClientService implements Runnable {
 	private String source;
 	private String[] targets;
 	private boolean startup;
+	
+	private Map<Category, OperationManager<?>> m_EventHandlers;
 
 //	private int timeoutSeconds = 30; // Unit: Second
 
@@ -48,8 +52,12 @@ public class ClientService implements Runnable {
 		this.targets = (targets==null? new String[]{}:targets.split(","));
 		this.startup = startup;
 	}
+	
+	public void setEventHandler(Map<Category, OperationManager<?>> handlers) {
+		this.m_EventHandlers = handlers;
+	}
 
-	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 	private EventLoopGroup group = new NioEventLoopGroup();
 
 	public void connect(String host, int port) throws Exception {
@@ -61,42 +69,40 @@ public class ClientService implements Runnable {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ChannelPipeline pipeline = ch.pipeline();
-							// pipeline.addLast(new IdleStateHandler(READ_IDEL_TIME_OUT,
-							// WRITE_IDEL_TIME_OUT, ALL_IDEL_TIME_OUT, TimeUnit.SECONDS)); // 1
-							// pipeline.addLast(new HeartbeatServerHandler()); // 2
-							// pipeline.addLast(new WriteTimeoutHandler(timeout));
 							pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 10, 2, -12, 0));
-							pipeline.addLast(new HeartBeatReqHandler(physicalAddress, source, targets));//3
-							// pipeline.addLast(new ReadTimeoutHandler(timeoutSeconds))
-							;
+							pipeline.addLast(new HeartBeatReqHandler(physicalAddress, source, targets));//ByteBuf
+//							pipeline.addLast(new PackDecoder(m_EventHandlers));//RawPack
 						}
 					});
 			b.remoteAddress(host, port);
 			ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 			ChannelFuture future = b.connect();
-			logger.info("client connect to host:{}, port:{}", host, port);
+//			logger.info("client connect to host:{}, port:{}", host, port);
 			future.sync();
 			if (future.isSuccess()) {
-				System.out.println("Connect to server. Succeed!  成功");
+//				System.out.println("Connect to server. Succeed!  成功");
 			}
 			future.channel().closeFuture().sync();
-			System.out.println("Reconnect to server. ");
+			//System.out.println("Reconnect to server. ");
 		} finally {
-			executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						TimeUnit.SECONDS.sleep(15);
-						try {
-							connect(host, port);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			//shutdown
+			group.shutdownGracefully();
+			
+//			executor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					try {
+//						TimeUnit.SECONDS.sleep(15);
+//						try {
+//							connect(host, port);
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			});
 		}
 	}
 
@@ -107,7 +113,7 @@ public class ClientService implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(physicalAddress+": "+startup);
+//		System.out.println(physicalAddress+": "+startup);
 		if(startup) {
 			try {
 				connect(host, port);

@@ -96,16 +96,16 @@ public abstract class BasePack {
 		this.targets = targets;
 	}
 	
-	protected void setSessionID(int sessionID) {
+	public void setSessionID(int sessionID) {
 		this.sessionID = sessionID;
 	}
-	protected void setSignatureTime(int signatureTime) {
+	public void setSignatureTime(int signatureTime) {
 		this.signatureTime = signatureTime;
 	}
-	protected void setSignatureNumber(String signatureNumber) {
+	public void setSignatureNumber(String signatureNumber) {
 		this.signatureNumber = signatureNumber;
 	}
-	protected void setSignature(byte[] signature) {
+	public void setSignature(byte[] signature) {
 		this.signature = signature;
 	}
 }

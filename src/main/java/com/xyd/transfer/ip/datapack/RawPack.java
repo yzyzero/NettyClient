@@ -8,7 +8,7 @@ public class RawPack extends BasePack {
 	private PackType type;
 	private OperationType operation;
 	
-	RawPack(PackType type, int sessionID, String source, String[] targets, OperationType operation, ByteBuf operationBuf) {
+	public RawPack(PackType type, int sessionID, String source, String[] targets, OperationType operation, ByteBuf operationBuf) {
 		this.setSessionID(sessionID);
 		this.setSource(source);
 		this.setTargets(targets);

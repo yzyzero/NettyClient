@@ -7,8 +7,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xyd.transfer.ip.PackEncodeException;
 import com.xyd.transfer.ip.datapack.ClientHeartbeat;
+import com.xyd.transfer.ip.datapack.ResponsePack;
 import com.xyd.transfer.ip.datapack.SendPack;
 import com.xyd.transfer.ip.datapack.Status;
 
@@ -26,16 +26,19 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	private String source;
 	private String[] targets;
 	
+	private static AtomicInteger retCount = new AtomicInteger(1);
+	private static AtomicInteger sendCount = new AtomicInteger(1);
+	
 	public HeartBeatReqHandler(String physicalAddress, String source, String[] targets) {
 		this.physicalAddress = physicalAddress;
 		this.source = source;
 		this.targets = targets;
-		logger.info("new HeartBeatReqHandler()");
+//		logger.info("new HeartBeatReqHandler()");
 	}
     
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	System.out.println("channelRead");
+//    	System.out.println("channelRead");
     	if(!(msg instanceof ByteBuf)){
     		logger.error("msg类型错误，不是ByteBuf.");
     		return;
@@ -44,7 +47,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
         try {
         	byte[] req = new byte[buf.readableBytes()];
             buf.readBytes(req);
-            System.out.println(Hex.encodeHexString(req));
+            System.out.println(Hex.encodeHexString(req) + ": " + physicalAddress + ": " + retCount.getAndIncrement());
             ctx.fireChannelRead(msg);
         }catch (Exception e){
             e.printStackTrace();
@@ -53,23 +56,25 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
         	//buf.release();//防止内存溢出
         	//ctx.close();//长连接不要关闭，短连接才关闭
         }
+        //ResponsePack response = new ResponsePack(pack.getSessionID(), code, new String[] {pack.getSource()}, pack.getOperation());
+        //ctx.fireChannelRead(msg);
 	}
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		logger.info("------------------------------------------------------");
-		logger.info("channelActive");
-		heartBeat = ctx.executor().scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 5000, TimeUnit.MILLISECONDS);
+//		logger.info("------------------------------------------------------");
+		System.out.println("channelActive. "+sendCount.getAndIncrement());
+		heartBeat = ctx.executor().scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 5000, TimeUnit.SECONDS);
 	}
 	
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	logger.info("channelInactive");
+//    	logger.info("channelInactive");
     	if(heartBeat!=null) {
     		heartBeat.cancel(true);
     		heartBeat = null;
     	}
-    	logger.info("------------------------------------------------------");
+//    	logger.info("------------------------------------------------------");
     }
     
     @Override
@@ -91,9 +96,9 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 
 		@Override
 		public void run() {
-			System.out.println("HeartBeat Begin...");
+//			System.out.println("HeartBeat Begin...");
 			sendHeartBeat();
-			System.out.println("HeartBeat End.");
+//			System.out.println("HeartBeat End. ");
 		}
 		
 //		public void buildHeartBeat() {

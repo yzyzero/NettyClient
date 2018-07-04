@@ -17,23 +17,23 @@ public class ClientHeartbeat extends SendPack {
 	private byte first;
 	private String physicalAddress;
 	
-	public ClientHeartbeat(RawPack pack) {
-		this(pack.getSessionID(), pack.getSource(), pack.getTargets(), pack.getBuf());
-	}
+//	public ClientHeartbeat(RawPack pack) {
+//		this(pack.getSessionID(), pack.getSource(), pack.getTargets(), pack.getBuf());
+//	}
 	
-	public ClientHeartbeat(int sessionID, String source, String[] targets, ByteBuf frame) {
-		this.setSessionID(sessionID);
-		this.setSource(source);
-		this.setTargets(targets);
-		
-		this.status = Status.valueOf(frame.readByte());
-		this.first = frame.readByte();
-		
-		int pLen = frame.readByte();
-		byte bPhyAddress[] = new byte[pLen];
-		frame.readBytes(bPhyAddress);
-		physicalAddress = Hex.encodeHexString(bPhyAddress);
-	}
+//	public ClientHeartbeat(int sessionID, String source, String[] targets, ByteBuf frame) {
+//		this.setSessionID(sessionID);
+//		this.setSource(source);
+//		this.setTargets(targets);
+//		
+//		this.status = Status.valueOf(frame.readByte());
+//		this.first = frame.readByte();
+//		
+//		int pLen = frame.readByte();
+//		byte bPhyAddress[] = new byte[pLen];
+//		frame.readBytes(bPhyAddress);
+//		physicalAddress = Hex.encodeHexString(bPhyAddress);
+//	}
 	
 	public ClientHeartbeat(int sessionID, String source, String[] targets, Status status, byte first, String physicalAddress) {
 		this.setSessionID(sessionID);
