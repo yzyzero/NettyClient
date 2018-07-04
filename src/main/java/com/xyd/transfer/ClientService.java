@@ -33,7 +33,7 @@ public class ClientService implements Runnable {
 	private String[] targets;
 	private boolean startup;
 
-	private int timeoutSeconds = 30; // Unit: Second
+//	private int timeoutSeconds = 30; // Unit: Second
 
 	// private ClientService() {
 	//
@@ -107,11 +107,13 @@ public class ClientService implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(physicalAddress);
-		try {
-			connect(host, port);
-		} catch (Exception e) {
-			e.printStackTrace();
+		System.out.println(physicalAddress+": "+startup);
+		if(startup) {
+			try {
+				connect(host, port);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
