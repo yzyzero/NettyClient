@@ -77,10 +77,16 @@ public class StartupRunner implements CommandLineRunner {
 		List<Runnable> threadList = new ArrayList<Runnable>();
 		List<Terminal> tList = dao.findAll();
 		for(Terminal terminal: tList) {
-			terminal.setHost(host);
-			terminal.setPort(port);
-			logger.info("id={}, source={}, targets={}, startup={}", terminal.getId(), terminal.getSource(), terminal.getTargets(), terminal.getStartup());
-			ClientService thread = new ClientService(host, port, terminal.getId(), terminal.getSource(), terminal.getTargets(), terminal.getStartup());
+			String host = terminal.getHost() == null ? this.host : terminal.getHost();
+			Integer port = terminal.getPort() == null ? this.port : terminal.getPort();
+			String physicalAddress = terminal.getId();
+			String source = terminal.getSource();
+			String targets = terminal.getTargets();
+			boolean startup = terminal.getStartup();
+			logger.info("id={}, source={}, targets={}, startup={}", 
+					physicalAddress, source, targets, startup);
+			ClientService thread = new ClientService(host, port, 
+					physicalAddress, source, targets, startup);
 			threadList.add(thread);
 		}
 		ExecutorService executorService = Executors.newFixedThreadPool(threadMaxCount);

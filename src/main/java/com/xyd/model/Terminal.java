@@ -26,11 +26,9 @@ public class Terminal implements Serializable{
 	private String targets;
 	
 	private Boolean startup;
-	
-	@Transient
+
 	private String host;
-	
-	@Transient
+
 	private Integer port;
 
 	public String getId() {

@@ -48,8 +48,5 @@ application:
     pass: 123456
     host: 192.168.101.218
     port: 18788
-    source: '069934152310020102'
-    targets: 010134152310020101,
-    physicalAddress: '170211010001'
 
 
