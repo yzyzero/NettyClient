@@ -45,7 +45,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
         	byte[] req = new byte[buf.readableBytes()];
             buf.readBytes(req);
             System.out.println(Hex.encodeHexString(req));
-            ctx.fireChannelRead(msg);            
+            ctx.fireChannelRead(msg);
         }catch (Exception e){
             e.printStackTrace();
         }finally{
@@ -57,7 +57,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		logger.info("-----------------------------------------------------------------------------------------------------------");
+		logger.info("------------------------------------------------------");
 		logger.info("channelActive");
 		heartBeat = ctx.executor().scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 5000, TimeUnit.MILLISECONDS);
 	}
@@ -69,7 +69,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
     		heartBeat.cancel(true);
     		heartBeat = null;
     	}
-    	logger.info("-----------------------------------------------------------------------------------------------------------");
+    	logger.info("------------------------------------------------------");
     }
     
     @Override
