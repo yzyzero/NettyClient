@@ -92,11 +92,11 @@ public class StartupRunner implements CommandLineRunner {
 		List<Runnable> threadList = new ArrayList<Runnable>(threadMaxCount);
 		List<Terminal> tList = dao.findAll();
 		for(Terminal terminal: tList) {
-			String host = terminal.getHost() == null ? this.host : terminal.getHost();
+			String host = terminal.getHost() == null ? this.host : terminal.getHost().trim();
 			Integer port = terminal.getPort() == null ? this.port : terminal.getPort();
-			String physicalAddress = terminal.getId();
-			String source = terminal.getSource();
-			String targets = terminal.getTargets();
+			String physicalAddress = terminal.getId().trim();
+			String source = terminal.getSource().trim();
+			String targets = terminal.getTargets().trim();
 			boolean startup = terminal.getStartup();
 			if(physicalAddress.length()==12 && source.length()==18 && targets.length()>=18) {
 				ClientService thread = new ClientService(host, port, 
