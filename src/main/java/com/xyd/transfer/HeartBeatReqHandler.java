@@ -26,8 +26,9 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	private String source;
 	private String[] targets;
 	
-	private static AtomicInteger retCount = new AtomicInteger(1);
-	private static AtomicInteger sendCount = new AtomicInteger(1);
+	private static AtomicInteger onlineCount = new AtomicInteger(0);
+//	private static AtomicInteger activeCount = new AtomicInteger(1);
+//	private static AtomicInteger InactiveCount = new AtomicInteger(1);
 	
 	public HeartBeatReqHandler(String physicalAddress, String source, String[] targets) {
 		this.physicalAddress = physicalAddress;
@@ -39,37 +40,37 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 //    	System.out.println("channelRead");
-    	if(!(msg instanceof ByteBuf)){
-    		logger.error("msg类型错误，不是ByteBuf.");
-    		return;
-    	}
-        ByteBuf buf = (ByteBuf) msg;
-        try {
-        	byte[] req = new byte[buf.readableBytes()];
-            buf.readBytes(req);
-            System.out.println(Hex.encodeHexString(req) + ": " + physicalAddress + ": " + retCount.getAndIncrement());
-            ctx.fireChannelRead(msg);
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally{
-        	//ReferenceCountUtil.release(buf);//防止内存溢出
-        	//buf.release();//防止内存溢出
-        	//ctx.close();//长连接不要关闭，短连接才关闭
-        }
+//    	if(!(msg instanceof ByteBuf)){
+//    		logger.error("msg类型错误，不是ByteBuf.");
+//    		return;
+//    	}
+//        ByteBuf buf = (ByteBuf) msg;
+//        try {
+//        	byte[] req = new byte[buf.readableBytes()];
+//            buf.readBytes(req);
+//            System.out.println(Hex.encodeHexString(req) + ": " + physicalAddress + ": " + retCount.getAndIncrement());
+//            ctx.fireChannelRead(msg);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }finally{
+//        	//ReferenceCountUtil.release(buf);//防止内存溢出
+//        	//buf.release();//防止内存溢出
+//        	//ctx.close();//长连接不要关闭，短连接才关闭
+//        }
         //ResponsePack response = new ResponsePack(pack.getSessionID(), code, new String[] {pack.getSource()}, pack.getOperation());
-        //ctx.fireChannelRead(msg);
+        ctx.fireChannelRead(msg);
 	}
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 //		logger.info("------------------------------------------------------");
-		System.out.println("channelActive. "+sendCount.getAndIncrement());
+		System.out.println(physicalAddress+ " channelActive. " + onlineCount.incrementAndGet());
 		heartBeat = ctx.executor().scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 5000, TimeUnit.SECONDS);
 	}
 	
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//    	logger.info("channelInactive");
+    	System.out.println(physicalAddress + " channelInactive. "+onlineCount.decrementAndGet());
     	if(heartBeat!=null) {
     		heartBeat.cancel(true);
     		heartBeat = null;

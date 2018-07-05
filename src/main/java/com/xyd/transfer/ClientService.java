@@ -57,7 +57,7 @@ public class ClientService implements Runnable {
 		this.m_EventHandlers = handlers;
 	}
 
-//	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 	private EventLoopGroup group = new NioEventLoopGroup();
 
 	public void connect(String host, int port) throws Exception {
@@ -71,7 +71,7 @@ public class ClientService implements Runnable {
 							ChannelPipeline pipeline = ch.pipeline();
 							pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 10, 2, -12, 0));
 							pipeline.addLast(new HeartBeatReqHandler(physicalAddress, source, targets));//ByteBuf
-//							pipeline.addLast(new PackDecoder(m_EventHandlers));//RawPack
+							pipeline.addLast(new PackDecoder(m_EventHandlers, physicalAddress));//RawPack
 						}
 					});
 			b.remoteAddress(host, port);
@@ -86,23 +86,23 @@ public class ClientService implements Runnable {
 			//System.out.println("Reconnect to server. ");
 		} finally {
 			//shutdown
-			group.shutdownGracefully();
+//			group.shutdownGracefully();
 			
-//			executor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					try {
-//						TimeUnit.SECONDS.sleep(15);
-//						try {
-//							connect(host, port);
-//						} catch (Exception e) {
-//							e.printStackTrace();
-//						}
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			});
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						TimeUnit.SECONDS.sleep(15);
+						try {
+							connect(host, port);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 	}
 

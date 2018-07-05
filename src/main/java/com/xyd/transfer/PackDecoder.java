@@ -1,5 +1,6 @@
 package com.xyd.transfer;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.apache.commons.codec.binary.Hex;
 import com.xyd.model.Category;
 import com.xyd.transfer.ip.datapack.OperationType;
 import com.xyd.transfer.ip.datapack.PackType;
+import com.xyd.transfer.ip.datapack.ParamType;
 import com.xyd.transfer.ip.datapack.RawPack;
 
 import io.netty.buffer.ByteBuf;
@@ -27,9 +29,12 @@ public class PackDecoder extends ByteToMessageDecoder {
 	
 	private boolean firstPack = true;
 	private final Map<Category, OperationManager<?>> m_EventHandlers;
+	
+	private String id;
 
-	public PackDecoder(Map<Category, OperationManager<?>> handlers) {
+	public PackDecoder(Map<Category, OperationManager<?>> handlers, String physicalAddress) {
 		m_EventHandlers = handlers;
+		id = physicalAddress;
 	}
 	
 	@Override
@@ -65,7 +70,11 @@ public class PackDecoder extends ByteToMessageDecoder {
 		    			} else {
 			    			OperationManager<?> handler = m_EventHandlers.get(category);
 			    			if(handler != null) {
-					    		ctx.channel().pipeline().addLast(handler.getProcessor((SocketChannel) ctx.channel(), source));
+			    				Map<ParamType,String> params = new HashMap<ParamType, String>();
+			    				params.put(ParamType.resourceCode, source);
+			    				params.put(ParamType.physicalAddress, id);
+			    				
+					    		ctx.channel().pipeline().addLast(handler.getProcessor((SocketChannel) ctx.channel(), params));
 			    			} else { // 不做任何处理 返回异常，强制断开连接
 					    		ctx.channel().pipeline().addLast(new OperationProcessor() {
 									@Override

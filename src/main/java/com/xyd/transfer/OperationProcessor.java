@@ -1,6 +1,9 @@
 package com.xyd.transfer;
 
+import java.util.Map;
+
 import com.xyd.transfer.ip.datapack.Error;
+import com.xyd.transfer.ip.datapack.ParamType;
 import com.xyd.transfer.ip.datapack.RawPack;
 import com.xyd.transfer.ip.datapack.ResponsePack;
 import com.xyd.transfer.ip.datapack.SendPack;
@@ -26,9 +29,9 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
 		this.regionCode = null;
 	}
 	
-	public OperationProcessor(SocketChannel channel, String code) {
+	public OperationProcessor(SocketChannel channel, Map<ParamType, String> params) {
 		this.channel = channel;
-		this.code = code;
+		this.code = params.get(ParamType.resourceCode);
 		this.regionCode = code.substring(4, 16);
 	}
 
@@ -41,6 +44,7 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
         		operate(pack);
         		response.setCode(Error.SUCCEED);
         	} catch (Exception e) {
+        		e.printStackTrace();
         		response.setCode(Error.ERROR30);
         		response.setDescription(e.getMessage());
 			}

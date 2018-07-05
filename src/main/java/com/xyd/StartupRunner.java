@@ -63,6 +63,9 @@ public class StartupRunner implements CommandLineRunner {
     @Autowired
     private TerminalDao dao;
     
+    @Autowired
+    private PlatformOptManager platformOptManager;
+    
 	@Override
 	public void run(String... args) throws Exception {
 		if(args.length > 0) {
@@ -80,7 +83,7 @@ public class StartupRunner implements CommandLineRunner {
 		logger.info("Startup Runner ......threadMaxCount="+threadMaxCount);
 		
 		Map<Category, OperationManager<?>> handlers = new HashMap<Category, OperationManager<?>>();
-		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, new PlatformOptManager());
+		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, platformOptManager);
 		
 		List<Runnable> threadList = new ArrayList<Runnable>(threadMaxCount);
 		List<Terminal> tList = dao.findAll();
@@ -91,13 +94,16 @@ public class StartupRunner implements CommandLineRunner {
 			String source = terminal.getSource();
 			String targets = terminal.getTargets();
 			boolean startup = terminal.getStartup();
-//			logger.info("id={}, source={}, targets={}, startup={}", 
-//					physicalAddress, source, targets, startup);
-			ClientService thread = new ClientService(host, port, 
-					physicalAddress, source, targets, startup);
-			thread.setEventHandler(handlers);
-			//
-			threadList.add(thread);
+			if(physicalAddress.length()==12 && source.length()==18 && targets.length()>=18) {
+				ClientService thread = new ClientService(host, port, 
+						physicalAddress, source, targets, startup);
+				thread.setEventHandler(handlers);
+				//
+				threadList.add(thread);
+			}else {
+				logger.info("错误数据,请检查数据库。id={}, source={}, targets={}, startup={}", 
+						physicalAddress, source, targets, startup);
+			}
 		}
 //		ExecutorService executorService = Executors.newFixedThreadPool(threadMaxCount);
 //		for(Runnable thread : threadList) {

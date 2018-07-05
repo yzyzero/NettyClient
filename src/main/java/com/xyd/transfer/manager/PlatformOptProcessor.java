@@ -1,5 +1,6 @@
 package com.xyd.transfer.manager;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.binary.Hex;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.xyd.transfer.OperationProcessor;
 import com.xyd.transfer.ip.datapack.OperationType;
 import com.xyd.transfer.ip.datapack.PackType;
+import com.xyd.transfer.ip.datapack.ParamType;
 import com.xyd.transfer.ip.datapack.RawPack;
 
 import io.netty.buffer.ByteBuf;
@@ -23,9 +25,10 @@ public class PlatformOptProcessor extends OperationProcessor {
 	
 	private static AtomicInteger retCount = new AtomicInteger(1);
 
-	public PlatformOptProcessor(PlatformOptManager manager, SocketChannel channel, String resourceCode) {
-		super(channel, resourceCode);
+	public PlatformOptProcessor(PlatformOptManager manager, SocketChannel channel, Map<ParamType,String> params) {
+		super(channel, params);
 		m_Manager = manager;
+		physicalAddress = params.get(ParamType.physicalAddress);
 	}
 
 	public String getPhysicalAddress() {
@@ -38,20 +41,28 @@ public class PlatformOptProcessor extends OperationProcessor {
 
 	@Override
 	protected void operate(RawPack rawpack) throws Exception {
+		ByteBuf buf = rawpack.getBuf();
+		byte[] req = new byte[buf.readableBytes()];
 		// 解析数据包
     	if(rawpack.getType().equals(PackType.REQUEST)) {
+    		//switch
 	    	switch (rawpack.getOperation()) {
-	    	case TERMINAL_CONFIG:	    		
-	    		ByteBuf buf = rawpack.getBuf();
-	    		byte[] req = new byte[buf.readableBytes()];
+	    	case TERMINAL_CONFIG:
 	    		buf.readBytes(req);
-	    		String id = Hex.encodeHexString(req).substring(6, 24);
-	    		StringBuffer targets = new StringBuffer();
-	    		for(String target : rawpack.getTargets()) {
-	    			targets.append(target);
-	    			targets.append(",");
+	    		String text = Hex.encodeHexString(req);
+	    		if(text.length() == 24) {
+		    		String id = text.substring(6, 24);
+		    		StringBuffer targets = new StringBuffer();
+		    		for(String target : rawpack.getTargets()) {
+		    			targets.append(target);
+		    			targets.append(",");
+		    		}
+		    		System.out.println( id + ": " + targets.toString() + ": " + retCount.getAndIncrement());
+		    		//String resourceCode = "069934152310020099";
+		    		m_Manager.writeConfig(physicalAddress, id);
+	    		}else {
+	    			System.out.println("返回: "+text);
 	    		}
-	    		System.out.println( id + ": " + targets.toString() + ": " + retCount.getAndIncrement());
 	    		break;
 			case HEARTBEAT:
 //	        	TerminalHeartbeat hearbeat = new TerminalHeartbeat(rawpack);
@@ -83,6 +94,15 @@ public class PlatformOptProcessor extends OperationProcessor {
 //				m_Manager.fireBroadcastReport(this, new TerminalBroadcastReport(rawpack)); 
 				break;
 			default:
+				try {
+					buf.readBytes(req);
+					System.out.println(
+							Hex.encodeHexString(req) + "> " + physicalAddress + ": " + retCount.getAndIncrement());
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					//
+				}
 				logger.error("未定义业务类型：");
 			}
     	} else if(rawpack.getType().equals(PackType.RESPONSE)) {
@@ -97,6 +117,15 @@ public class PlatformOptProcessor extends OperationProcessor {
 //				System.out.println("终端状态参数" + status.getResultCode());
 //				break;
 			default:
+				try {
+					buf.readBytes(req);
+					System.out.println(
+							Hex.encodeHexString(req) + "> " + physicalAddress + ": " + retCount.getAndIncrement());
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					//
+				}
 				if(!rawpack.getOperation().equals(OperationType.NONE)) {
 					//notifyResponse(new ResponsePack(rawpack)); break;
 				}
