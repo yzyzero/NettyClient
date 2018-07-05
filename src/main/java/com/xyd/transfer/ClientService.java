@@ -1,6 +1,8 @@
 package com.xyd.transfer;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.xyd.model.Category;
 import com.xyd.model.Terminal;
+import com.xyd.transfer.ip.datapack.ParamType;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -21,7 +24,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
+//import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 
 public class ClientService implements Runnable {
@@ -32,10 +35,11 @@ public class ClientService implements Runnable {
 	private Integer port;
 	private String physicalAddress;
 	private String source;
-	private String[] targets;
+	private String targets;
 	private boolean startup;
 	
 	private Map<Category, OperationManager<?>> m_EventHandlers;
+	Map<ParamType,String> params = new ConcurrentHashMap<ParamType, String>();
 
 //	private int timeoutSeconds = 30; // Unit: Second
 
@@ -49,8 +53,12 @@ public class ClientService implements Runnable {
 		this.port = port;
 		this.physicalAddress = physicalAddress;
 		this.source = source;
-		this.targets = (targets==null? new String[]{}:targets.split(","));
+		this.targets = targets;
 		this.startup = startup;
+		
+		params.put(ParamType.physicalAddress, physicalAddress);
+		params.put(ParamType.source, source);
+		params.put(ParamType.targets, targets);
 	}
 	
 	public void setEventHandler(Map<Category, OperationManager<?>> handlers) {
@@ -70,7 +78,7 @@ public class ClientService implements Runnable {
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ChannelPipeline pipeline = ch.pipeline();
 							pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 10, 2, -12, 0));
-							pipeline.addLast(new HeartBeatReqHandler(physicalAddress, source, targets));//ByteBuf
+							pipeline.addLast(new HeartBeatReqHandler(params));//ByteBuf
 							pipeline.addLast(new PackDecoder(m_EventHandlers, physicalAddress));//RawPack
 						}
 					});
@@ -83,7 +91,7 @@ public class ClientService implements Runnable {
 //				System.out.println("Connect to server. Succeed!  成功");
 			}
 			future.channel().closeFuture().sync();
-			//System.out.println("Reconnect to server. ");
+			System.out.println(physicalAddress + " Reconnect to server. ");
 		} finally {
 			//shutdown
 //			group.shutdownGracefully();

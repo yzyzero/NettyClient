@@ -1,4 +1,4 @@
-package com.xyd.transfer.manager;
+package com.xyd.transfer.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -20,8 +20,8 @@ public class PlatformOptManager implements OperationManager<PlatformOptProcessor
     private TerminalDao dao;
 
 	@Override
-	public PlatformOptProcessor getProcessor(SocketChannel channel, Map<ParamType,String> params) {
-		return new PlatformOptProcessor(this, channel, params);
+	public PlatformOptProcessor getProcessor(SocketChannel channel, String resourceCode, String physicalAddress) {
+		return new PlatformOptProcessor(this, channel, resourceCode, physicalAddress);
 	}
 	
 	protected void fireOffline(PlatformOptProcessor processor) {

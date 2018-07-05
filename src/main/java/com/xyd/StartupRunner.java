@@ -24,7 +24,7 @@ import com.xyd.model.Category;
 import com.xyd.model.Terminal;
 import com.xyd.transfer.ClientService;
 import com.xyd.transfer.OperationManager;
-import com.xyd.transfer.manager.PlatformOptManager;
+import com.xyd.transfer.impl.PlatformOptManager;
 
 //import cn.tass.yingjgb.YingJGBCALLDLL;
 //import org.apache.commons.codec.binary.Base64;
@@ -66,6 +66,13 @@ public class StartupRunner implements CommandLineRunner {
     @Autowired
     private PlatformOptManager platformOptManager;
     
+    private Map<Category, OperationManager<?>> getHandlers(){
+		Map<Category, OperationManager<?>> handlers = new HashMap<Category, OperationManager<?>>();
+		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, platformOptManager);
+		handlers.put(Category.RECEIVING_TERMINAL, platformOptManager);
+		return handlers;
+    }
+    
 	@Override
 	public void run(String... args) throws Exception {
 		if(args.length > 0) {
@@ -82,9 +89,6 @@ public class StartupRunner implements CommandLineRunner {
 		
 		logger.info("Startup Runner ......threadMaxCount="+threadMaxCount);
 		
-		Map<Category, OperationManager<?>> handlers = new HashMap<Category, OperationManager<?>>();
-		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, platformOptManager);
-		
 		List<Runnable> threadList = new ArrayList<Runnable>(threadMaxCount);
 		List<Terminal> tList = dao.findAll();
 		for(Terminal terminal: tList) {
@@ -97,11 +101,11 @@ public class StartupRunner implements CommandLineRunner {
 			if(physicalAddress.length()==12 && source.length()==18 && targets.length()>=18) {
 				ClientService thread = new ClientService(host, port, 
 						physicalAddress, source, targets, startup);
-				thread.setEventHandler(handlers);
+				thread.setEventHandler(getHandlers());
 				//
 				threadList.add(thread);
 			}else {
-				logger.info("错误数据,请检查数据库。id={}, source={}, targets={}, startup={}", 
+				logger.info("数据错误,请检查数据库。id={}, source={}, targets={}, startup={}", 
 						physicalAddress, source, targets, startup);
 			}
 		}

@@ -1,5 +1,8 @@
 package com.xyd.transfer;
 
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -8,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.xyd.transfer.ip.datapack.ClientHeartbeat;
+import com.xyd.transfer.ip.datapack.ParamType;
 import com.xyd.transfer.ip.datapack.ResponsePack;
 import com.xyd.transfer.ip.datapack.SendPack;
 import com.xyd.transfer.ip.datapack.Status;
@@ -19,7 +23,6 @@ import io.netty.util.concurrent.ScheduledFuture;
 
 public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	private volatile ScheduledFuture<?> heartBeat;
 	
 	private AtomicInteger sessionid = new AtomicInteger(1);
 	private String physicalAddress;
@@ -29,11 +32,15 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	private static AtomicInteger onlineCount = new AtomicInteger(0);
 //	private static AtomicInteger activeCount = new AtomicInteger(1);
 //	private static AtomicInteger InactiveCount = new AtomicInteger(1);
+	private static AtomicInteger heartCount = new AtomicInteger(0);
 	
-	public HeartBeatReqHandler(String physicalAddress, String source, String[] targets) {
-		this.physicalAddress = physicalAddress;
-		this.source = source;
-		this.targets = targets;
+	private ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+	
+	public HeartBeatReqHandler(Map<ParamType,String> params) {
+		this.physicalAddress = params.get(ParamType.physicalAddress);
+		this.source = params.get(ParamType.source);
+		String text = params.get(ParamType.targets);
+		this.targets = (text == null ? new String[] {} : text.split(","));
 //		logger.info("new HeartBeatReqHandler()");
 	}
     
@@ -64,16 +71,16 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 //		logger.info("------------------------------------------------------");
-		System.out.println(physicalAddress+ " channelActive. " + onlineCount.incrementAndGet());
-		heartBeat = ctx.executor().scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 5000, TimeUnit.SECONDS);
+		System.out.println(physicalAddress+ " channelActive. " + onlineCount.incrementAndGet());		
+		service.scheduleAtFixedRate(new HeartBeatReqHandler.HeartBeatTask(ctx), 0, 10, TimeUnit.SECONDS);
 	}
 	
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     	System.out.println(physicalAddress + " channelInactive. "+onlineCount.decrementAndGet());
-    	if(heartBeat!=null) {
-    		heartBeat.cancel(true);
-    		heartBeat = null;
+    	if(service!=null) {
+    		service.shutdown();
+    		service = null;
     	}
 //    	logger.info("------------------------------------------------------");
     }
@@ -81,9 +88,9 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     	logger.error("client caught exception", cause);
-    	if(heartBeat!=null) {
-    		heartBeat.cancel(true);
-    		heartBeat = null;
+    	if(service!=null) {
+    		service.shutdown();
+    		service = null;
     	}
     	ctx.fireExceptionCaught(cause);
     }
@@ -97,7 +104,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 
 		@Override
 		public void run() {
-//			System.out.println("HeartBeat Begin...");
+//			System.out.println("HeartBeat Begin..."+physicalAddress);
 			sendHeartBeat();
 //			System.out.println("HeartBeat End. ");
 		}
@@ -119,6 +126,8 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 //					}
 					ByteBuf msg = pack.toBuffer();
 					ctx.writeAndFlush(msg);
+					System.out.println(physicalAddress + " sendHeartBeat. "+ sessionid.get() + " : "+(heartCount.getAndIncrement() % 20+1));
+
 				} catch (PackEncodeException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

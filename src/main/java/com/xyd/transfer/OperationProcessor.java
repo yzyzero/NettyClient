@@ -29,9 +29,9 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
 		this.regionCode = null;
 	}
 	
-	public OperationProcessor(SocketChannel channel, Map<ParamType, String> params) {
+	public OperationProcessor(SocketChannel channel, String resourceCode) {
 		this.channel = channel;
-		this.code = params.get(ParamType.resourceCode);
+		this.code = resourceCode;
 		this.regionCode = code.substring(4, 16);
 	}
 

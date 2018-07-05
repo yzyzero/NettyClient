@@ -1,4 +1,4 @@
-package com.xyd.transfer.manager;
+package com.xyd.transfer.impl;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,10 +25,10 @@ public class PlatformOptProcessor extends OperationProcessor {
 	
 	private static AtomicInteger retCount = new AtomicInteger(1);
 
-	public PlatformOptProcessor(PlatformOptManager manager, SocketChannel channel, Map<ParamType,String> params) {
-		super(channel, params);
+	public PlatformOptProcessor(PlatformOptManager manager, SocketChannel channel, String resourceCode, String physicalAddress) {
+		super(channel, resourceCode);
 		m_Manager = manager;
-		physicalAddress = params.get(ParamType.physicalAddress);
+		this.physicalAddress = physicalAddress;
 	}
 
 	public String getPhysicalAddress() {
@@ -64,7 +64,7 @@ public class PlatformOptProcessor extends OperationProcessor {
 	    			System.out.println("返回: "+text);
 	    		}
 	    		break;
-			case HEARTBEAT:
+//			case HEARTBEAT:
 //	        	TerminalHeartbeat hearbeat = new TerminalHeartbeat(rawpack);
 //	        	if(physicalAddress == null) { // 建立连接后第一个心跳包，上线处理
 //	        		setStatus(hearbeat.getStatus());
@@ -76,11 +76,11 @@ public class PlatformOptProcessor extends OperationProcessor {
 //	        	} else if(!physicalAddress.equals(hearbeat.getPhysicalAddress()) || !getCode().equals(hearbeat.getSource())) {
 //	        		throw new Exception("接收到与本连接物理地址或资源编码不符的数据！");
 //	        	}
-				break;
-			case TERMINAL_FAILURE_RECOVERY: 
+//				break;
+//			case TERMINAL_FAILURE_RECOVERY: 
 //				m_Manager.fireFailure(this, new TerminalFailureReport(rawpack)); 
-				break;
-			case TERMINAL_TASK_SWITCH:
+//				break;
+//			case TERMINAL_TASK_SWITCH:
 				// TODO 处理任务改变
 //				TerminalTaskReport task = new TerminalTaskReport(rawpack);
 //				if(task.getSign() == 1) {
@@ -89,21 +89,21 @@ public class PlatformOptProcessor extends OperationProcessor {
 //					broadcastId = null;
 //				}
 //				m_Manager.fireTask(this, task);
-				break;
-			case TERMINAL_BROADCAST_REPORT: 
+//				break;
+//			case TERMINAL_BROADCAST_REPORT: 
 //				m_Manager.fireBroadcastReport(this, new TerminalBroadcastReport(rawpack)); 
-				break;
+//				break;
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(
-							Hex.encodeHexString(req) + "> " + physicalAddress + ": " + retCount.getAndIncrement());
+					System.out.println(rawpack.getOperation().name() + ": " + 
+							Hex.encodeHexString(req) + " > " + physicalAddress + ": " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					//
 				}
-				logger.error("未定义业务类型：");
+				//logger.error("未定义业务类型：");
 			}
     	} else if(rawpack.getType().equals(PackType.RESPONSE)) {
     		// TODO 完成应答数据处理
@@ -119,7 +119,7 @@ public class PlatformOptProcessor extends OperationProcessor {
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(
+					System.out.println(rawpack.getOperation().name() + ": " + 
 							Hex.encodeHexString(req) + "> " + physicalAddress + ": " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -3,6 +3,7 @@ package com.xyd.transfer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -29,12 +30,13 @@ public class PackDecoder extends ByteToMessageDecoder {
 	
 	private boolean firstPack = true;
 	private final Map<Category, OperationManager<?>> m_EventHandlers;
+//	private Map<ParamType,String> params;
 	
 	private String id;
 
 	public PackDecoder(Map<Category, OperationManager<?>> handlers, String physicalAddress) {
-		m_EventHandlers = handlers;
-		id = physicalAddress;
+		this.m_EventHandlers = handlers;
+		this.id = physicalAddress;
 	}
 	
 	@Override
@@ -69,17 +71,13 @@ public class PackDecoder extends ByteToMessageDecoder {
 							throw new Exception();
 		    			} else {
 			    			OperationManager<?> handler = m_EventHandlers.get(category);
-			    			if(handler != null) {
-			    				Map<ParamType,String> params = new HashMap<ParamType, String>();
-			    				params.put(ParamType.resourceCode, source);
-			    				params.put(ParamType.physicalAddress, id);
-			    				
-					    		ctx.channel().pipeline().addLast(handler.getProcessor((SocketChannel) ctx.channel(), params));
+			    			if(handler != null) {			    				
+					    		ctx.channel().pipeline().addLast(handler.getProcessor((SocketChannel) ctx.channel(), source, id));
 			    			} else { // 不做任何处理 返回异常，强制断开连接
 					    		ctx.channel().pipeline().addLast(new OperationProcessor() {
 									@Override
 									protected void operate(RawPack pack) throws Exception {
-										System.out.println("不接受设备“" + category.getLabel() + "”的连接");
+										System.out.println("不接受设备“" + category.getLabel() + "”的连接" + category.name());
 										throw new Exception();
 									}
 	
