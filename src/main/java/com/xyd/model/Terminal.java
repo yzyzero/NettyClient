@@ -20,7 +20,6 @@ public class Terminal implements Serializable{
 	@Column(name="id", length=12)
 	private String id;
 	
-	@Column(name="source", length=18)
 	private String source;
 	
 	private String targets;
