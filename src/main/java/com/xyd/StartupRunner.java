@@ -98,14 +98,14 @@ public class StartupRunner implements CommandLineRunner {
 			String source = terminal.getSource().trim();
 			String targets = terminal.getTargets().trim();
 			boolean startup = terminal.getStartup();
-			if(physicalAddress.length()==12 && source.length()==18 && targets.length()>=18) {
+			if(physicalAddress.length()==12 && source.length()==23 && targets.length()>=23) {
 				ClientService thread = new ClientService(host, port, 
 						physicalAddress, source, targets, startup);
 				thread.setEventHandler(getHandlers());
 				//
 				threadList.add(thread);
 			}else {
-				logger.info("数据错误,请检查数据库。id={}, source={}, targets={}, startup={}", 
+				logger.info("数据长度错误,请检查数据库。id={}, source={}, targets={}, startup={}", 
 						physicalAddress, source, targets, startup);
 			}
 		}

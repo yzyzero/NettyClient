@@ -12,13 +12,13 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 
 public abstract class SendPack extends BasePack {
-	private static final String ZERO_MASK = "000000000000000000";
-	private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+	private static final Logger logger = LoggerFactory.getLogger(SendPack.class);
+	private static final String ZERO_MASK = "000000000000000000000000";
 	
 	public ByteBuf toBuffer() throws PackEncodeException {
 		ByteBuf buf = Unpooled.buffer(54);
 		try {
-			int packLen = 30 + getTargetNumber()*9;
+			int packLen = 33 + getTargetNumber()*12;
 			
 			// 消息头 12
 			buf.writeShort(0xFEFD);
@@ -28,15 +28,15 @@ public abstract class SendPack extends BasePack {
 			buf.writeByte(0);
 			buf.writeShort(packLen);
 			
-			// 消息体 12 + 2 + n*9 + X
-			buf.writeBytes(Hex.decodeHex(getSource()));
+			// 消息体 12 + 2 + n*12 + X
+			buf.writeBytes(Hex.decodeHex('F'+getSource()));
 			buf.writeShort(getTargetNumber());
 			for (String target : getTargets()) {
-				if(target.length() == 18) {
-					buf.writeBytes(Hex.decodeHex(target));
+				if(target.length() == 23) {
+					buf.writeBytes(Hex.decodeHex('F' + target));
 				} else {
-					String t = "0000" + target;
-					t = t + ZERO_MASK.substring(0, 18 - t.length());
+					String t = "00" + target;
+					t = t + ZERO_MASK.substring(0, 24 - t.length());
 					
 					buf.writeBytes(Hex.decodeHex(t));
 				}
