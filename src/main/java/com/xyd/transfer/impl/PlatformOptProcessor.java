@@ -96,8 +96,8 @@ public class PlatformOptProcessor extends OperationProcessor {
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(rawpack.getOperation().name() + ": " + 
-							Hex.encodeHexString(req) + " > " + physicalAddress + ": " + retCount.getAndIncrement());
+					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
+							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -119,8 +119,8 @@ public class PlatformOptProcessor extends OperationProcessor {
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(rawpack.getOperation().name() + ": " + 
-							Hex.encodeHexString(req) + "> " + physicalAddress + ": " + retCount.getAndIncrement());
+					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
+							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {

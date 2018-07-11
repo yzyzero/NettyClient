@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.druid.util.StringUtils;
 import com.xyd.dao.TerminalDao;
-import com.xyd.model.Category;
+import com.xyd.model.Subcategory;
 import com.xyd.model.Terminal;
 import com.xyd.transfer.ClientService;
 import com.xyd.transfer.OperationManager;
@@ -66,10 +66,10 @@ public class StartupRunner implements CommandLineRunner {
     @Autowired
     private PlatformOptManager platformOptManager;
     
-    private Map<Category, OperationManager<?>> getHandlers(){
-		Map<Category, OperationManager<?>> handlers = new HashMap<Category, OperationManager<?>>();
-		handlers.put(Category.EMERGENCY_BROADCAST_PLATFORM, platformOptManager);
-		handlers.put(Category.RECEIVING_TERMINAL, platformOptManager);
+    private Map<Subcategory, OperationManager<?>> getHandlers(){
+		Map<Subcategory, OperationManager<?>> handlers = new HashMap<Subcategory, OperationManager<?>>();
+		handlers.put(Subcategory.SYSTEM, platformOptManager);
+		handlers.put(Subcategory.RECEIVING_TERMINAL, platformOptManager);
 		return handlers;
     }
     

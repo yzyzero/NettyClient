@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xyd.model.Category;
+import com.xyd.model.Subcategory;
 import com.xyd.model.Terminal;
 import com.xyd.transfer.ip.datapack.ParamType;
 
@@ -38,7 +38,7 @@ public class ClientService implements Runnable {
 	private String targets;
 	private boolean startup;
 	
-	private Map<Category, OperationManager<?>> m_EventHandlers;
+	private Map<Subcategory, OperationManager<?>> m_EventHandlers;
 	Map<ParamType,String> params = new ConcurrentHashMap<ParamType, String>();
 
 //	private int timeoutSeconds = 30; // Unit: Second
@@ -61,7 +61,7 @@ public class ClientService implements Runnable {
 		params.put(ParamType.targets, targets);
 	}
 	
-	public void setEventHandler(Map<Category, OperationManager<?>> handlers) {
+	public void setEventHandler(Map<Subcategory, OperationManager<?>> handlers) {
 		this.m_EventHandlers = handlers;
 	}
 

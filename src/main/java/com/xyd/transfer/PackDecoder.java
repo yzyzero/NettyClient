@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.binary.Hex;
 
-import com.xyd.model.Category;
+import com.xyd.model.Subcategory;
+import com.xyd.model.Subcategory;
 import com.xyd.transfer.ip.datapack.OperationType;
 import com.xyd.transfer.ip.datapack.PackType;
 import com.xyd.transfer.ip.datapack.ParamType;
@@ -29,12 +30,12 @@ public class PackDecoder extends ByteToMessageDecoder {
 	private int authSign;
 	
 	private boolean firstPack = true;
-	private final Map<Category, OperationManager<?>> m_EventHandlers;
+	private final Map<Subcategory, OperationManager<?>> m_EventHandlers;
 //	private Map<ParamType,String> params;
 	
 	private String id;
 
-	public PackDecoder(Map<Category, OperationManager<?>> handlers, String physicalAddress) {
+	public PackDecoder(Map<Subcategory, OperationManager<?>> handlers, String physicalAddress) {
 		this.m_EventHandlers = handlers;
 		this.id = physicalAddress;
 	}
@@ -58,17 +59,17 @@ public class PackDecoder extends ByteToMessageDecoder {
     			length = length -12;
 			}else if(readStatus.equals(ReadStatus.BODY)) {
 
-		    	byte bResId[] = new byte[9];
+		    	byte bResId[] = new byte[12];
 		    	in.readBytes(bResId);
-		    	String source = Hex.encodeHexString(bResId);
+		    	String source = Hex.encodeHexString(bResId).substring(1);
 
 		    	// 判断是否第一个数据包;如果是第一个数据包则创建根据设备类型创建指令接收设备
 		    	if(firstPack) {
-		    		if(source != null && source.length() == 18) { 
-		    			Category category = Category.valueForCode(source.substring(0, 2));
-		    			if(category.equals(Category.ALL)) {
-							System.out.println("资源编码的设备类型未定义：" + source);
-							throw new Exception();
+		    		if(source != null && source.length() == 23) { 
+		    			String subStr = source.substring(19, 21);
+		    			Subcategory category = Subcategory.valueForCode(subStr);
+		    			if(Subcategory.NONE.equals(category)) {
+							throw new Exception("资源编码的设备类型未定义：" + source);
 		    			} else {
 			    			OperationManager<?> handler = m_EventHandlers.get(category);
 			    			if(handler != null) {			    				

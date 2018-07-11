@@ -68,7 +68,6 @@ public abstract class SendPack extends BasePack {
 					logger.debug(e.toString());
 				}
 				//e.printStackTrace();
-//				logger.info("签名错误");
 				//System.out.println("签名错误");
 			}
 			
