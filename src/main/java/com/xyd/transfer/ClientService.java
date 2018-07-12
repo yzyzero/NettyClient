@@ -3,6 +3,7 @@ package com.xyd.transfer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.xyd.resource.model.Subcategory;
 import com.xyd.resource.model.Terminal;
+import com.xyd.transfer.impl.PlatformOptManager;
 import com.xyd.transfer.ip.OperationManager;
 import com.xyd.transfer.ip.PackDecoder;
 
@@ -40,6 +42,8 @@ public class ClientService implements Runnable {
 	private boolean startup;
 	
 	private Map<Subcategory, OperationManager<?>> m_EventHandlers;
+	
+	private PlatformOptManager manager;
 
 //	private int timeoutSeconds = 30; // Unit: Second
 
@@ -60,8 +64,12 @@ public class ClientService implements Runnable {
 	public void setEventHandler(Map<Subcategory, OperationManager<?>> handlers) {
 		this.m_EventHandlers = handlers;
 	}
+	
+	public void setManager(PlatformOptManager manager) {
+		this.manager = manager;
+	}
 
-	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	private ExecutorService executor = Executors.newCachedThreadPool();
 	private EventLoopGroup group = new NioEventLoopGroup();
 
 	public void connect(String host, int port) throws Exception {
@@ -87,11 +95,15 @@ public class ClientService implements Runnable {
 //				System.out.println("Connect to server. Succeed!  成功");
 			}
 			future.channel().closeFuture().sync();
-			System.out.println(physicalAddress + " Reconnect to server. ");
 		} finally {
 			//shutdown
 //			group.shutdownGracefully();
-			
+			if(manager!=null) {
+				//重连时重新从数据库查询参数
+				String code = manager.queryResourceCode(physicalAddress);
+				setSource(code);
+			}
+			System.out.println(physicalAddress + " Reconnect to server. " + source);
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -110,6 +122,14 @@ public class ClientService implements Runnable {
 		}
 	}
 
+	public String getSource() {
+		return source;
+	}
+	
+	public synchronized void setSource(String source) {
+		this.source = source;
+	}
+	
 	public void stop() {
 		// Shut down the event loop to terminate all threads.
 		group.shutdownGracefully();

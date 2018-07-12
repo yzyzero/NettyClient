@@ -56,8 +56,6 @@ public class PlatformOptProcessor extends OperationProcessor {
 		    			targets.append(target);
 		    			targets.append(",");
 		    		}
-		    		System.out.println( id + ": " + targets.toString() + ": " + retCount.getAndIncrement());
-		    		//String resourceCode = "069934152310020099";
 		    		m_Manager.writeConfig(physicalAddress, id);
 	    		}else {
 	    			System.out.println("返回: "+text);
@@ -92,8 +90,6 @@ public class PlatformOptProcessor extends OperationProcessor {
 			case TERMINAL_STATUS_QUERY: 
 				try {
 					buf.readBytes(req);
-					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
-							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -103,8 +99,6 @@ public class PlatformOptProcessor extends OperationProcessor {
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
-							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -126,8 +120,6 @@ public class PlatformOptProcessor extends OperationProcessor {
 			default:
 				try {
 					buf.readBytes(req);
-					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
-							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -138,6 +130,8 @@ public class PlatformOptProcessor extends OperationProcessor {
 				}
 			}
     	}
+		System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
+				rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
 	}
 
 	@Override

@@ -30,8 +30,6 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	private String[] targets;
 	
 	private static AtomicInteger onlineCount = new AtomicInteger(0);
-//	private static AtomicInteger activeCount = new AtomicInteger(1);
-//	private static AtomicInteger InactiveCount = new AtomicInteger(1);
 	private static AtomicInteger heartCount = new AtomicInteger(0);
 	
 	private ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
@@ -40,7 +38,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 		this.physicalAddress = physicalAddress;
 		this.source = source;
 		this.targets = (targets == null ? new String[] {} : targets.split(","));
-//		logger.info("new HeartBeatReqHandler()");
+		logger.info("new HeartBeatReqHandler() " + source);
 	}
     
     @Override

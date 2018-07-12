@@ -35,5 +35,14 @@ public class PlatformOptManager implements OperationManager<PlatformOptProcessor
 			dao.save(terminal);
 		}
 	}
-
+	
+	public String queryResourceCode(String physicalAddress) {
+		String resourceCode = "";
+		List<Terminal> terminals = dao.findById(physicalAddress);
+		for(Terminal terminal: terminals) {
+			resourceCode = terminal.getSource();
+			break;
+		}
+		return resourceCode;
+	}
 }

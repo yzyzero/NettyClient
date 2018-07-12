@@ -102,6 +102,7 @@ public class StartupRunner implements CommandLineRunner {
 				ClientService thread = new ClientService(host, port, 
 						physicalAddress, source, targets, startup);
 				thread.setEventHandler(getHandlers());
+				thread.setManager(platformOptManager);
 				//
 				threadList.add(thread);
 			}else {
