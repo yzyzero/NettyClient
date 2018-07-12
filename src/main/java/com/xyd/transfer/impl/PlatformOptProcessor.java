@@ -49,8 +49,8 @@ public class PlatformOptProcessor extends OperationProcessor {
 	    	case TERMINAL_CONFIG:
 	    		buf.readBytes(req);
 	    		String text = Hex.encodeHexString(req);
-	    		if(text.length() == 24) {
-		    		String id = text.substring(6, 24);
+	    		if(text.length() == 30) {
+		    		String id = text.substring(7, 30);
 		    		StringBuffer targets = new StringBuffer();
 		    		for(String target : rawpack.getTargets()) {
 		    			targets.append(target);
