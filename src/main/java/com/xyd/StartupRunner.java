@@ -19,12 +19,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.druid.util.StringUtils;
-import com.xyd.dao.TerminalDao;
-import com.xyd.model.Subcategory;
-import com.xyd.model.Terminal;
+import com.xyd.resource.dao.TerminalDao;
+import com.xyd.resource.model.Subcategory;
+import com.xyd.resource.model.Terminal;
 import com.xyd.transfer.ClientService;
-import com.xyd.transfer.OperationManager;
 import com.xyd.transfer.impl.PlatformOptManager;
+import com.xyd.transfer.ip.OperationManager;
 
 //import cn.tass.yingjgb.YingJGBCALLDLL;
 //import org.apache.commons.codec.binary.Base64;

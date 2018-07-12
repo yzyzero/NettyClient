@@ -1,4 +1,4 @@
-package com.xyd.transfer;
+package com.xyd.transfer.ip;
 
 public class PackEncodeException extends Exception {
 	private static final long serialVersionUID = 1L;

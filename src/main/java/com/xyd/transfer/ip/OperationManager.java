@@ -1,8 +1,6 @@
-package com.xyd.transfer;
+package com.xyd.transfer.ip;
 
 import java.util.Map;
-
-import com.xyd.transfer.ip.datapack.ParamType;
 
 import io.netty.channel.socket.SocketChannel;
 

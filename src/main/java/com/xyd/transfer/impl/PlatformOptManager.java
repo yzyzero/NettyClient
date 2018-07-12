@@ -6,10 +6,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.xyd.dao.TerminalDao;
-import com.xyd.model.Terminal;
-import com.xyd.transfer.OperationManager;
-import com.xyd.transfer.ip.datapack.ParamType;
+import com.xyd.resource.dao.TerminalDao;
+import com.xyd.resource.model.Terminal;
+import com.xyd.transfer.ip.OperationManager;
 
 import io.netty.channel.socket.SocketChannel;
 

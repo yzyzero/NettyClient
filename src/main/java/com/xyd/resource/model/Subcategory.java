@@ -1,4 +1,4 @@
-package com.xyd.model;
+package com.xyd.resource.model;
 
 
 /*/ 

@@ -7,11 +7,10 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xyd.transfer.OperationProcessor;
-import com.xyd.transfer.ip.datapack.OperationType;
-import com.xyd.transfer.ip.datapack.PackType;
-import com.xyd.transfer.ip.datapack.ParamType;
-import com.xyd.transfer.ip.datapack.RawPack;
+import com.xyd.transfer.ip.OperationProcessor;
+import com.xyd.transfer.ip.OperationType;
+import com.xyd.transfer.ip.PackType;
+import com.xyd.transfer.ip.RawPack;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.SocketChannel;
@@ -90,9 +89,17 @@ public class PlatformOptProcessor extends OperationProcessor {
 //				}
 //				m_Manager.fireTask(this, task);
 //				break;
-//			case TERMINAL_BROADCAST_REPORT: 
-//				m_Manager.fireBroadcastReport(this, new TerminalBroadcastReport(rawpack)); 
-//				break;
+			case TERMINAL_STATUS_QUERY: 
+				try {
+					buf.readBytes(req);
+					System.out.println(physicalAddress + " " + rawpack.getOperation().name() + " " + 
+							rawpack.getType().name() + " " + Hex.encodeHexString(req)+" : " + retCount.getAndIncrement());
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					//
+				}
+				break;
 			default:
 				try {
 					buf.readBytes(req);

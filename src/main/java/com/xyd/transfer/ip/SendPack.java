@@ -1,10 +1,8 @@
-package com.xyd.transfer.ip.datapack;
+package com.xyd.transfer.ip;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.xyd.transfer.PackEncodeException;
 
 import cn.tass.yingjgb.YingJGBCALLDLL;
 import io.netty.buffer.ByteBuf;

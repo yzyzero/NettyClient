@@ -1,4 +1,4 @@
-package com.xyd.model;
+package com.xyd.resource.model;
 /**
  * 应急广播平台资源分类
  * @author hhq

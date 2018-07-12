@@ -1,4 +1,4 @@
-package com.xyd.transfer.ip.datapack;
+package com.xyd.transfer.ip;
 
 public enum OperationType {
 	NONE(0),

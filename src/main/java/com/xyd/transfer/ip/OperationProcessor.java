@@ -1,13 +1,6 @@
-package com.xyd.transfer;
+package com.xyd.transfer.ip;
 
 import java.util.Map;
-
-import com.xyd.transfer.ip.datapack.Error;
-import com.xyd.transfer.ip.datapack.ParamType;
-import com.xyd.transfer.ip.datapack.RawPack;
-import com.xyd.transfer.ip.datapack.ResponsePack;
-import com.xyd.transfer.ip.datapack.SendPack;
-import com.xyd.transfer.ip.datapack.Status;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;

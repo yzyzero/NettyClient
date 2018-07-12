@@ -10,11 +10,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.xyd.transfer.ip.PackEncodeException;
+import com.xyd.transfer.ip.ResponsePack;
+import com.xyd.transfer.ip.SendPack;
+import com.xyd.transfer.ip.Status;
 import com.xyd.transfer.ip.datapack.ClientHeartbeat;
-import com.xyd.transfer.ip.datapack.ParamType;
-import com.xyd.transfer.ip.datapack.ResponsePack;
-import com.xyd.transfer.ip.datapack.SendPack;
-import com.xyd.transfer.ip.datapack.Status;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -36,11 +36,10 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 	
 	private ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
 	
-	public HeartBeatReqHandler(Map<ParamType,String> params) {
-		this.physicalAddress = params.get(ParamType.physicalAddress);
-		this.source = params.get(ParamType.source);
-		String text = params.get(ParamType.targets);
-		this.targets = (text == null ? new String[] {} : text.split(","));
+	public HeartBeatReqHandler(String physicalAddress, String source, String targets) {
+		this.physicalAddress = physicalAddress;
+		this.source = source;
+		this.targets = (targets == null ? new String[] {} : targets.split(","));
 //		logger.info("new HeartBeatReqHandler()");
 	}
     

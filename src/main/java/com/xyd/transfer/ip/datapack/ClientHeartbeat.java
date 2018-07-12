@@ -2,6 +2,11 @@ package com.xyd.transfer.ip.datapack;
 
 import org.apache.commons.codec.binary.Hex;
 
+import com.xyd.transfer.ip.OperationType;
+import com.xyd.transfer.ip.PackType;
+import com.xyd.transfer.ip.SendPack;
+import com.xyd.transfer.ip.Status;
+
 import io.netty.buffer.ByteBuf;
 
 public class ClientHeartbeat extends SendPack {

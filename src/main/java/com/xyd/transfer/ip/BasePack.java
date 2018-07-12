@@ -1,4 +1,4 @@
-package com.xyd.transfer.ip.datapack;
+package com.xyd.transfer.ip;
 
 public abstract class BasePack {
 

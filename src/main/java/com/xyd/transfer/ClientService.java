@@ -10,9 +10,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xyd.model.Subcategory;
-import com.xyd.model.Terminal;
-import com.xyd.transfer.ip.datapack.ParamType;
+import com.xyd.resource.model.Subcategory;
+import com.xyd.resource.model.Terminal;
+import com.xyd.transfer.ip.OperationManager;
+import com.xyd.transfer.ip.PackDecoder;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -39,7 +40,6 @@ public class ClientService implements Runnable {
 	private boolean startup;
 	
 	private Map<Subcategory, OperationManager<?>> m_EventHandlers;
-	Map<ParamType,String> params = new ConcurrentHashMap<ParamType, String>();
 
 //	private int timeoutSeconds = 30; // Unit: Second
 
@@ -55,10 +55,6 @@ public class ClientService implements Runnable {
 		this.source = source;
 		this.targets = targets;
 		this.startup = startup;
-		
-		params.put(ParamType.physicalAddress, physicalAddress);
-		params.put(ParamType.source, source);
-		params.put(ParamType.targets, targets);
 	}
 	
 	public void setEventHandler(Map<Subcategory, OperationManager<?>> handlers) {
@@ -78,7 +74,7 @@ public class ClientService implements Runnable {
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ChannelPipeline pipeline = ch.pipeline();
 							pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 10, 2, -12, 0));
-							pipeline.addLast(new HeartBeatReqHandler(params));//ByteBuf
+							pipeline.addLast(new HeartBeatReqHandler(physicalAddress, source, targets));//ByteBuf
 							pipeline.addLast(new PackDecoder(m_EventHandlers, physicalAddress));//RawPack
 						}
 					});

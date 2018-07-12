@@ -1,4 +1,4 @@
-package com.xyd.transfer;
+package com.xyd.transfer.ip;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,12 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.binary.Hex;
 
-import com.xyd.model.Subcategory;
-import com.xyd.model.Subcategory;
-import com.xyd.transfer.ip.datapack.OperationType;
-import com.xyd.transfer.ip.datapack.PackType;
-import com.xyd.transfer.ip.datapack.ParamType;
-import com.xyd.transfer.ip.datapack.RawPack;
+import com.xyd.resource.model.Subcategory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
