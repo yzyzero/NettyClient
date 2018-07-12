@@ -9,7 +9,7 @@ import com.xyd.transfer.ip.Status;
 
 import io.netty.buffer.ByteBuf;
 
-public class ClientHeartbeat extends SendPack {
+public class RequestHeartbeat extends SendPack {
 	
 	/*----------------------------------- 5.3.1 终端心跳 ---------------------------------------------
 	序号	语法		长度（字节）	编码规则
@@ -40,7 +40,7 @@ public class ClientHeartbeat extends SendPack {
 //		physicalAddress = Hex.encodeHexString(bPhyAddress);
 //	}
 	
-	public ClientHeartbeat(int sessionID, String source, String[] targets, Status status, byte first, String physicalAddress) {
+	public RequestHeartbeat(int sessionID, String source, String[] targets, Status status, byte first, String physicalAddress) {
 		this.setSessionID(sessionID);
 		this.setSource(source);
 		this.setTargets(targets);

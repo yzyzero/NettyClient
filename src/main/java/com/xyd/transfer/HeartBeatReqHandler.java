@@ -14,7 +14,7 @@ import com.xyd.transfer.ip.PackEncodeException;
 import com.xyd.transfer.ip.ResponsePack;
 import com.xyd.transfer.ip.SendPack;
 import com.xyd.transfer.ip.Status;
-import com.xyd.transfer.ip.datapack.ClientHeartbeat;
+import com.xyd.transfer.ip.datapack.RequestHeartbeat;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -117,7 +117,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
 			byte first = 1;
 			
 			if(source!=null && targets!=null &&physicalAddress!=null) {
-				SendPack pack = new ClientHeartbeat(sessionID, source, targets, Status.IDLE, first, physicalAddress);
+				SendPack pack = new RequestHeartbeat(sessionID, source, targets, Status.IDLE, first, physicalAddress);
 				try {
 //					if(ctx.channel().isActive()) {
 //					}else {

@@ -1,6 +1,8 @@
 package com.xyd.transfer.ip;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -8,6 +10,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
+
+import com.xyd.transfer.ip.OperationType;
+import com.xyd.transfer.ip.datapack.ResponseStatusQuery;
+import com.xyd.transfer.ip.parameter.Enumerate;
+import com.xyd.transfer.ip.parameter.IPParameter;
 
 public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
 	private final String code;
@@ -32,18 +39,34 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof RawPack) {
         	RawPack pack = (RawPack) msg;
-        	ResponsePack response = new ResponsePack(pack.getSessionID(), code, new String[] {pack.getSource()}, pack.getOperation());
+        	Exception exception = null;
         	try {
-        		operate(pack);
-        		response.setCode(Error.SUCCEED);
+	        	operate(pack);
         	} catch (Exception e) {
-        		e.printStackTrace();
-        		response.setCode(Error.ERROR30);
-        		response.setDescription(e.getMessage());
+        		exception = e;
 			}
+        	if(PackType.REQUEST.equals(pack.getType())) {
+        		switch(pack.getOperation()) {
+        			case TERMINAL_STATUS_QUERY:
+        				IPParameter parameter = Enumerate.RESOURCE_CODE.createInstance();
+        				parameter.setValue(code);
+        				ResponseStatusQuery queryResp = new ResponseStatusQuery(pack.getSessionID(), pack.getSource(), parameter);
+        				writeByCode(queryResp);
+        				break;
+        			default:
+        	        	ResponsePack response = new ResponsePack(pack.getSessionID(), code, new String[] {pack.getSource()}, pack.getOperation());
+        	        	if(exception == null) {
+        	        		response.setCode(Error.SUCCEED);
+        	        	} else {
+        	        		response.setCode(Error.ERROR30);
+        	        		response.setDescription(exception.getMessage());
+        	        	}
+        				writeByCode(response);
+        				break;
+        		}
+        	}
+
 			ReferenceCountUtil.release(pack.getBuf());
-			
-			writeByCode(response);
         }
 
         ctx.fireChannelRead(msg);
