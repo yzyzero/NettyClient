@@ -32,7 +32,7 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
 	public OperationProcessor(SocketChannel channel, String resourceCode) {
 		this.channel = channel;
 		this.code = resourceCode;
-		this.regionCode = code.substring(4, 16);
+		this.regionCode = code.substring(1, 13);
 	}
 
 	@Override
@@ -49,9 +49,12 @@ public abstract class OperationProcessor extends ChannelInboundHandlerAdapter {
         		switch(pack.getOperation()) {
         			case TERMINAL_STATUS_QUERY:
         				IPParameter parameter = Enumerate.RESOURCE_CODE.createInstance();
-        				parameter.setValue(code);
+        				parameter.setValue(pack.getSource());
         				ResponseStatusQuery queryResp = new ResponseStatusQuery(pack.getSessionID(), pack.getSource(), parameter);
         				writeByCode(queryResp);
+        				break;
+        			case TERMINAL_CONFIG:
+        				
         				break;
         			default:
         	        	ResponsePack response = new ResponsePack(pack.getSessionID(), code, new String[] {pack.getSource()}, pack.getOperation());
